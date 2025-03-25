@@ -3,6 +3,7 @@ package fr.batgard.brhomeassignment.drawings.feed.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.batgard.brhomeassignment.drawings.feed.presentation.UserInput
+import fr.batgard.brhomeassignment.drawings.feed.presentation.models.FeedEntry
 import fr.batgard.brhomeassignment.drawings.feed.presentation.models.FeedEntry.Drawing
 import fr.batgard.brhomeassignment.drawings.feed.presentation.models.HighestOffer
 import fr.batgard.brhomeassignment.drawings.feed.presentation.models.User
@@ -16,7 +17,7 @@ import java.util.UUID
 
 sealed interface FeedUiState {
     data class Content(
-        val drawings: List<Drawing>,
+        val drawings: List<FeedEntry>,
         val isBellAnimated: Boolean,
     ) : FeedUiState
 
@@ -28,7 +29,16 @@ sealed interface FeedUiState {
 
 class FeedViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow<FeedUiState>(FeedUiState.Content(emptyList(), false))
+    private val _uiState = MutableStateFlow<FeedUiState>(
+        FeedUiState.Content(
+            listOf(
+                FeedEntry.Placeholder,
+                FeedEntry.Placeholder,
+                FeedEntry.Placeholder,
+            ),
+            false
+        )
+    )
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
 
     init {

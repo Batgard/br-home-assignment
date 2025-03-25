@@ -6,7 +6,7 @@ sealed interface FeedEntry {
         val drawingId: String,
         val user: User,
         val imageUrl: String,
-        val timestamp: Long,
+        val timestamp: Long, // TODO: Don't expose it as such. It should be a formatted string: Either a date or an elapsed time
         val likesCount: Int,
         val commentsCount: Int,
         val offersCount: Int,

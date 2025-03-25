@@ -1,0 +1,63 @@
+{
+  "data": [
+    {
+      "drawingId": "drawing123",
+      "imageUrl": "https://example.com/drawings/drawing123.jpg",
+      "timestamp": 1678886400,
+      "likesCount": 42,
+      "commentsCount": 15,
+      "offersCount": 3,
+      "isLikedByUser": true,
+      "highestOffer": {
+        "userId": "user999",
+        "amount": 50
+      },
+      "user": {
+        "userId": "user456",
+        "username": "ArtMaster",
+        "profileImageUrl": "https://example.com/profiles/user456.jpg"
+      }
+    },
+    {
+      "drawingId": "drawing456",
+      "imageUrl": "https://example.com/drawings/drawing456.png",
+      "timestamp": 1678713600,
+      "likesCount": 12,
+      "commentsCount": 3,
+      "offersCount": 0,
+      "isLikedByUser": false,
+      "highestOffer": null,
+      "user": {
+        "userId": "user789",
+        "username": "SketchyDude",
+        "profileImageUrl": "https://example.com/profiles/user789.png"
+      }
+    },
+    {
+      "drawingId": "drawing789",
+      "imageUrl": "https://example.com/drawings/drawing789.gif",
+      "timestamp": 1678627200,
+      "likesCount": 150,
+      "commentsCount": 3,
+      "offersCount": 1,
+      "isLikedByUser": false,
+      "highestOffer": {
+        "userId": "user222",
+        "amount": 15
+      },
+      "user": {
+        "userId": "user123",
+        "username": "PicassoJr",
+        "profileImageUrl": "https://example.com/profiles/user123.jpg"
+      }
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "pageSize": 20,
+    "totalItems": 150,
+    "totalPages": 8,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
