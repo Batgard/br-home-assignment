@@ -18,12 +18,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,23 +48,16 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import fr.batgard.brhomeassignment.R
-import fr.batgard.brhomeassignment.drawings.feed.presentation.models.Drawing
+import fr.batgard.brhomeassignment.drawings.feed.presentation.models.FeedEntry.Drawing
+import fr.batgard.brhomeassignment.drawings.feed.presentation.models.FeedEntry
 import fr.batgard.brhomeassignment.drawings.feed.presentation.models.HighestOffer
 import fr.batgard.brhomeassignment.drawings.feed.presentation.models.User
 import java.util.UUID
 
-// Sealed class for user inputs
-sealed class UserInput {
-    data class LikeClicked(val drawingId: String) : UserInput()
-    data class CommentClicked(val drawingId: String) : UserInput()
-    data class OfferClicked(val drawingId: String) : UserInput()
-    object NotificationClicked : UserInput()
-    object NewDrawingClicked : UserInput()
-}
 
 @Composable
 fun FeedScreen(
-    drawings: List<Drawing>,
+    feedEntries: List<FeedEntry>,
     onUserInput: (UserInput) -> Unit,
     isBellAnimated: Boolean
 ) {
@@ -85,11 +79,16 @@ fun FeedScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(drawings) { drawing ->
-                    DrawingItem(
-                        drawing = drawing,
-                        onUserInput = onUserInput
-                    )
+                items(feedEntries) { feedEntry ->
+                    when(feedEntry) {
+                        is FeedEntry.Drawing -> DrawingItem(
+                            drawing = feedEntry,
+                            onUserInput = onUserInput
+                        )
+                        FeedEntry.Placeholder -> Placeholder(
+                            modifier = Modifier.height(250.dp)
+                        )
+                    }
                 }
             }
 
@@ -201,7 +200,7 @@ fun OfferButton(offersCount: Int, onOfferClicked: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberVectorPainter(Icons.Filled.MoreVert),
+            imageVector = Icons.Filled.ShoppingCart,
             contentDescription = "Offer",
             modifier = Modifier.size(24.dp)
         )
@@ -267,13 +266,61 @@ fun CommentButton(commentsCount: Int, onCommentClicked: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Filled.Add, // Fixme: Use the correct icon
+            imageVector = Icons.Filled.Edit, // Fixme: Use the correct icon
             contentDescription = "Comment",
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = commentsCount.toString())
     }
+}
+
+@Composable
+fun Placeholder(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp)
+    ) {
+        // User Avatar Placeholder
+        Box(
+            modifier = Modifier
+                .size(width = 40.dp, height = 20.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Drawing Image Placeholder
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Text Placeholders (like, comments)
+        Box(
+            modifier = Modifier
+                .size(width = 80.dp, height = 20.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FeedScreenPlaceholdersPreview() {
+    val placeHolders = listOf(
+        FeedEntry.Placeholder, FeedEntry.Placeholder, FeedEntry.Placeholder
+    )
+    FeedScreen(feedEntries = placeHolders, onUserInput = {}, isBellAnimated = false)
 }
 
 @Preview(showBackground = true)
@@ -314,8 +361,10 @@ fun FeedScreenPreview() {
             highestOffer = HighestOffer("user222", 15)
         )
     )
-    FeedScreen(drawings = drawings, onUserInput = {}, isBellAnimated = false)
+    FeedScreen(feedEntries = drawings, onUserInput = {}, isBellAnimated = false)
 }
+
+
 
 
 
