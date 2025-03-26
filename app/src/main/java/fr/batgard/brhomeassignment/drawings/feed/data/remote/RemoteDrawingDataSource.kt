@@ -1,8 +1,10 @@
-package fr.batgard.brhomeassignment.drawings.feed.data.sources
+package fr.batgard.brhomeassignment.drawings.feed.data.remote
 
 import fr.batgard.brhomeassignment.drawings.feed.data.entities.Drawing
 import fr.batgard.brhomeassignment.drawings.feed.data.entities.HighestOffer
 import fr.batgard.brhomeassignment.drawings.feed.data.entities.User
+import fr.batgard.brhomeassignment.drawings.feed.data.source.DrawingDatasource
+import fr.batgard.brhomeassignment.drawings.feed.data.source.NewDrawing
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android

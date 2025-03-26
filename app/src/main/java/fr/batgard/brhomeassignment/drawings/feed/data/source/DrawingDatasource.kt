@@ -1,4 +1,4 @@
-package fr.batgard.brhomeassignment.drawings.feed.data.sources
+package fr.batgard.brhomeassignment.drawings.feed.data.source
 
 import android.net.Uri
 import fr.batgard.brhomeassignment.drawings.feed.data.entities.Drawing
