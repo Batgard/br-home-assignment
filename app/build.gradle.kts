@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.junit5)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -61,6 +62,13 @@ dependencies {
 
     // image loading
     implementation(libs.coil.compose)
+    // database
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+    testImplementation(libs.androidx.room.testing)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
