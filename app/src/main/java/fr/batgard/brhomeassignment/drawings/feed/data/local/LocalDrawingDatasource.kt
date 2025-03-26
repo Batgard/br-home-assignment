@@ -1,20 +1,22 @@
 package fr.batgard.brhomeassignment.drawings.feed.data.local
 
-import fr.batgard.brhomeassignment.drawings.feed.data.entities.Drawing
-import fr.batgard.brhomeassignment.drawings.feed.data.entities.HighestOffer
-import fr.batgard.brhomeassignment.drawings.feed.data.entities.User
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.Drawing
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.HighestOffer
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.User
 import fr.batgard.brhomeassignment.drawings.feed.data.local.dao.DrawingDao
 import fr.batgard.brhomeassignment.drawings.feed.data.local.entities.DrawingEntity
 import fr.batgard.brhomeassignment.drawings.feed.data.local.entities.UserEntity
-import fr.batgard.brhomeassignment.drawings.feed.data.source.DrawingDatasource
-import fr.batgard.brhomeassignment.drawings.feed.data.source.NewDrawing
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.util.UUID
 
-class LocalDrawingDatasource(
+interface LocalDrawingDatasource {
+    fun fetch(pageIndex: Int, pageSize: Int): Flow<List<Drawing>>
+    suspend fun add(drawings: List<Drawing>): Result<Unit>
+}
+
+class LocalDrawingDatasourceImpl( // For simplicity, we keep both the interface and the implementation in the same file
     private val drawingDao: DrawingDao
-) : DrawingDatasource {
+) : LocalDrawingDatasource {
     override fun fetch(pageIndex: Int, pageSize: Int): Flow<List<Drawing>> {
         return drawingDao.getDrawingsByPage(pageIndex, pageSize).map { drawingEntities ->
             drawingEntities.map { drawingEntity ->
@@ -23,13 +25,10 @@ class LocalDrawingDatasource(
         }
     }
 
-    override suspend fun create(newDrawing: NewDrawing): Result<Drawing> {
-        return try {
-            val drawingEntity = newDrawing.toDrawingEntity()
-            drawingDao.insert(drawingEntity)
-            Result.success(drawingEntity.toDrawing())
-        } catch (e: Exception) {
-            Result.failure(e)
+    override suspend fun add(drawings: List<Drawing>): Result<Unit> {
+        return runCatching {
+            val drawingEntity = drawings.map { it.toDrawingEntity() }
+            drawingDao.insertAll(drawingEntity)
         }
     }
 
@@ -52,16 +51,20 @@ class LocalDrawingDatasource(
         )
     }
 
-    private fun NewDrawing.toDrawingEntity(): DrawingEntity {
+    private fun Drawing.toDrawingEntity(): DrawingEntity {
         return DrawingEntity(
-            drawingId = UUID.randomUUID().toString(),
-            user = UserEntity(UUID.randomUUID().toString(), "currentUserName", "currentUserProfileUrl"), // FIXME: Complete with the logged in user
-            imageUrl = imageUri.toString(),
-            timestamp = createdAt,
-            likesCount = 0,
-            commentsCount = 0,
-            offersCount = 0,
-            isLikedByUser = false,
+            drawingId = drawingId,
+            user = UserEntity(
+                userId = user.userId,
+                username = user.username,
+                profileImageUrl = user.profileImageUrl
+            ),
+            imageUrl = imageUrl,
+            timestamp = timestamp,
+            likesCount = likesCount,
+            commentsCount = commentsCount,
+            offersCount = offersCount,
+            isLikedByUser = isLikedByUser
         )
     }
 }

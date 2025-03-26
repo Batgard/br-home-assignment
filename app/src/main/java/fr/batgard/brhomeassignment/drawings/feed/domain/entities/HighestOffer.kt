@@ -1,4 +1,4 @@
-package fr.batgard.brhomeassignment.drawings.feed.data.entities
+package fr.batgard.brhomeassignment.drawings.feed.domain.entities
 
 data class HighestOffer(
     val userId: String,

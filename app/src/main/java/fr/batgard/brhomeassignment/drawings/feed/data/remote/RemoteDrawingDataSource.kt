@@ -1,10 +1,9 @@
 package fr.batgard.brhomeassignment.drawings.feed.data.remote
 
-import fr.batgard.brhomeassignment.drawings.feed.data.entities.Drawing
-import fr.batgard.brhomeassignment.drawings.feed.data.entities.HighestOffer
-import fr.batgard.brhomeassignment.drawings.feed.data.entities.User
-import fr.batgard.brhomeassignment.drawings.feed.data.source.DrawingDatasource
-import fr.batgard.brhomeassignment.drawings.feed.data.source.NewDrawing
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.Drawing
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.HighestOffer
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.NewDrawing
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.User
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -18,14 +17,18 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class RemoteDrawingDatasource : DrawingDatasource {
+interface RemoteDrawingDatasource {
+    suspend fun fetch(pageIndex: Int, pageSize: Int): Result<List<Drawing>>
+    suspend fun add(newDrawing: NewDrawing): Result<Drawing>
+}
 
+class RemoteDrawingDatasourceImpl(private val httpClient: HttpClient) : RemoteDrawingDatasource {
+
+    // FIXME: Inject
     private val client = HttpClient(Android) {
         install(ContentNegotiation) {
             json(Json {
@@ -36,8 +39,8 @@ class RemoteDrawingDatasource : DrawingDatasource {
         }
     }
 
-    override fun fetch(pageIndex: Int, pageSize: Int): Flow<List<Drawing>> = flow {
-        try {
+    override suspend fun fetch(pageIndex: Int, pageSize: Int): Result<List<Drawing>> {
+        return runCatching {
             val response: HttpResponse =
                 client.get("https://fr.batgard.soisvrai-home-assignment/drawings/") {
                     //You should replace that with the real parameters
@@ -49,16 +52,14 @@ class RemoteDrawingDatasource : DrawingDatasource {
 
             if (response.status == HttpStatusCode.OK) {
                 val drawingResponse: DrawingResponse = response.body()
-                emit(drawingResponse.data.map { it.toDrawing() })
+                drawingResponse.data.map { it.toDrawing() }
             } else {
                 throw Exception("Failed to load data: ${response.status}")
             }
-        } catch (e: Exception) {
-            throw Exception("Failed to load data: ${e.message}")
         }
     }
 
-    override suspend fun create(newDrawing: NewDrawing): Result<Drawing> {
+    override suspend fun add(newDrawing: NewDrawing): Result<Drawing> {
         return runCatching {
             val response: HttpResponse =
                 client.post("https://fr.batgard.soisvrai-home-assignment/drawings/") {
@@ -76,6 +77,7 @@ class RemoteDrawingDatasource : DrawingDatasource {
             response.body()
         }
     }
+
 }
 
 @Serializable
