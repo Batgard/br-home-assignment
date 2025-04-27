@@ -6,4 +6,6 @@ data class NewDrawing(
     val imageUri: Uri,
     val description: String,
     val createdAt: Long
-)
+) {
+
+}

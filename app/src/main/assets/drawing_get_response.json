@@ -3,7 +3,8 @@
     {
       "drawingId": "drawing123",
       "imageUrl": "https://example.com/drawings/drawing123.jpg",
-      "timestamp": 1678886400,
+      "description": "A beautiful landscape drawing.",
+      "lastUpdatedAt": 1678886400,
       "likesCount": 42,
       "commentsCount": 15,
       "offersCount": 3,
@@ -21,7 +22,8 @@
     {
       "drawingId": "drawing456",
       "imageUrl": "https://example.com/drawings/drawing456.png",
-      "timestamp": 1678713600,
+      "description": "A sketchy drawing of a cat.",
+      "lastUpdatedAt": 1678713600,
       "likesCount": 12,
       "commentsCount": 3,
       "offersCount": 0,
@@ -36,7 +38,8 @@
     {
       "drawingId": "drawing789",
       "imageUrl": "https://example.com/drawings/drawing789.gif",
-      "timestamp": 1678627200,
+      "description": "A vibrant and colorful abstract drawing.",
+      "lastUpdatedAt": 1678627200,
       "likesCount": 150,
       "commentsCount": 3,
       "offersCount": 1,

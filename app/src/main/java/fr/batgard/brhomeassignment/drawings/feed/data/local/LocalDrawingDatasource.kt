@@ -1,27 +1,29 @@
 package fr.batgard.brhomeassignment.drawings.feed.data.local
 
-import fr.batgard.brhomeassignment.drawings.feed.domain.entities.Drawing
-import fr.batgard.brhomeassignment.drawings.feed.domain.entities.HighestOffer
-import fr.batgard.brhomeassignment.drawings.feed.domain.entities.User
 import fr.batgard.brhomeassignment.drawings.feed.data.local.dao.DrawingDao
 import fr.batgard.brhomeassignment.drawings.feed.data.local.entities.DrawingEntity
 import fr.batgard.brhomeassignment.drawings.feed.data.local.entities.UserEntity
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import fr.batgard.brhomeassignment.drawings.feed.data.repository.TimeProvider
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.Drawing
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.HighestOffer
+import fr.batgard.brhomeassignment.drawings.feed.domain.entities.User
 
 interface LocalDrawingDatasource {
-    fun fetch(pageIndex: Int, pageSize: Int): Flow<List<Drawing>>
+    fun fetch(pageIndex: Int, pageSize: Int): List<Drawing>
     suspend fun add(drawings: List<Drawing>): Result<Unit>
+    suspend fun update(drawing: Drawing): Result<Unit>
+    suspend fun getLastUpdateTimestamp(): Result<Long>
 }
 
-class LocalDrawingDatasourceImpl( // For simplicity, we keep both the interface and the implementation in the same file
-    private val drawingDao: DrawingDao
+// For simplicity, we keep both the interface and the implementation in the same file
+class LocalDrawingDatasourceImpl(
+    private val drawingDao: DrawingDao,
+    private val timeProvider: TimeProvider = TimeProvider { System.currentTimeMillis() },
 ) : LocalDrawingDatasource {
-    override fun fetch(pageIndex: Int, pageSize: Int): Flow<List<Drawing>> {
+
+    override fun fetch(pageIndex: Int, pageSize: Int): List<Drawing> {
         return drawingDao.getDrawingsByPage(pageIndex, pageSize).map { drawingEntities ->
-            drawingEntities.map { drawingEntity ->
-                drawingEntity.toDrawing()
-            }
+            drawingEntities.toDrawing()
         }
     }
 
@@ -29,6 +31,19 @@ class LocalDrawingDatasourceImpl( // For simplicity, we keep both the interface 
         return runCatching {
             val drawingEntity = drawings.map { it.toDrawingEntity() }
             drawingDao.insertAll(drawingEntity)
+            drawingDao.upsertLastUpdateTimestamp(timeProvider.getCurrentTimeMillis())
+        }
+    }
+
+    override suspend fun update(drawing: Drawing): Result<Unit> {
+        return runCatching {
+            drawingDao.insertAll(listOf(drawing.toDrawingEntity()))
+        }
+    }
+
+    override suspend fun getLastUpdateTimestamp(): Result<Long> {
+        return runCatching {
+            drawingDao.getLastUpdateTimestamp()?.timestamp ?: 0
         }
     }
 
@@ -37,7 +52,8 @@ class LocalDrawingDatasourceImpl( // For simplicity, we keep both the interface 
             drawingId = drawingId,
             user = User(user.userId, user.username, user.profileImageUrl),
             imageUrl = imageUrl,
-            timestamp = timestamp,
+            description = description,
+            lastUpdatedAt = lastUpdatedAt,
             likesCount = likesCount,
             commentsCount = commentsCount,
             offersCount = offersCount,
@@ -59,8 +75,9 @@ class LocalDrawingDatasourceImpl( // For simplicity, we keep both the interface 
                 username = user.username,
                 profileImageUrl = user.profileImageUrl
             ),
+            description = description,
             imageUrl = imageUrl,
-            timestamp = timestamp,
+            lastUpdatedAt = lastUpdatedAt,
             likesCount = likesCount,
             commentsCount = commentsCount,
             offersCount = offersCount,

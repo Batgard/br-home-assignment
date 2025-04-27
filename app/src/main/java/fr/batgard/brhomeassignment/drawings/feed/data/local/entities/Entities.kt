@@ -9,8 +9,9 @@ data class DrawingEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val drawingId: String,
     @Embedded val user: UserEntity,
+    val description: String,
     val imageUrl: String,
-    val timestamp: Long,
+    val lastUpdatedAt: Long,
     val likesCount: Int,
     val commentsCount: Int,
     val offersCount: Int,
@@ -30,3 +31,6 @@ data class HighestOfferEntity(
     @PrimaryKey val userId: String,
     val amount: Int
 )
+
+@Entity(tableName = "last_update_timestamp")
+data class LastUpdateTimestampEntity(val timestamp: Long)
